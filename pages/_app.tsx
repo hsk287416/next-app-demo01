@@ -1,8 +1,9 @@
 import App, { AppInitialProps, AppProps, AppContext } from 'next/app';
 import 'antd/dist/antd.css';
 import { Provider } from 'react-redux';
-import withRedux from 'next-redux-wrapper';
-import { initializeStore } from '../redux/store';
+import LayoutComp from '../components/Layout';
+import withRedux from '../libs/with-redux.lib';
+
 
 class MyApp extends App<AppProps> {
 
@@ -19,12 +20,20 @@ class MyApp extends App<AppProps> {
 
     render() {
         const { Component, pageProps, store } = this.props;
+        const { userInfo } = store.getState();
+        let avatar_url = '';
+        let html_url = '';
+        if (userInfo) {
+            avatar_url = userInfo.avatar_url;
+            html_url = userInfo.html_url;
+        }
         return (
             <Provider store={store}>
-                <Component {...pageProps} />
+                <LayoutComp avatar_url={avatar_url} html_url={html_url}>
+                    <Component {...pageProps} />
+                </LayoutComp>
             </Provider>
         )
     }
 }
-
-export default withRedux(initializeStore)(MyApp);
+export default withRedux(MyApp);
