@@ -5,7 +5,7 @@ import session from 'koa-session';
 import auth from './auth';
 import RedisSessionStore from './session-store';
 import IORedis from 'ioredis';
-import { Server, RouterContext } from '../types/shims-koa';
+import githubApi from './api';
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -23,17 +23,8 @@ app.prepare().then(() => {
     }
     server.use(session(SESSION_CONFIG, server));
     auth(server);
+    githubApi(server);
     
-    // router.get('/api/user/info', async (ctx: any) => {
-    //     const { userInfo } = ctx.session;
-    //     if (!userInfo) {
-    //         ctx.response.status = 401;
-    //     } else {
-    //         ctx.response.body = userInfo;
-    //     }
-    //     ctx.set('Content-Type', 'application/json');
-    // });
-
     server.use(router.routes());
 
     server.use(async (ctx: any, next) => {

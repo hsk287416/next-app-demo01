@@ -1,14 +1,17 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Avatar, Tooltip, Dropdown, Menu } from 'antd';
 import oauthConfig from '../config/oauth.config';
 
 export interface AvatarCompProp {
     avatar_url: string;
     html_url: string;
+    logout: () => void;
 }
 
 const AvatarComp: React.FC<AvatarCompProp> = (props: AvatarCompProp) => {
-    const { avatar_url, html_url } = props;
+    const { avatar_url, html_url, logout } = props;
+
+    const loginUrl = `${oauthConfig.github.oAuthUrl}`;
 
     const menu = (
         <Menu>
@@ -16,7 +19,7 @@ const AvatarComp: React.FC<AvatarCompProp> = (props: AvatarCompProp) => {
                 <a target="_blank" href={html_url}>Github主页</a>
             </Menu.Item>
             <Menu.Item>
-                <a href="/user/logout">注销</a>
+                <a onClick={logout}>注销</a>
             </Menu.Item>
         </Menu>
     );
@@ -31,7 +34,7 @@ const AvatarComp: React.FC<AvatarCompProp> = (props: AvatarCompProp) => {
 
     return (
         <Tooltip placement="bottomRight" title="点击登录">
-            <a href={oauthConfig.github.oAuthUrl}>
+            <a href={loginUrl}>
                 <Avatar size={40} icon="user" />
             </a>
         </Tooltip>

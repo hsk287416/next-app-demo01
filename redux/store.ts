@@ -1,11 +1,28 @@
-import { createStore, applyMiddleware, combineReducers } from 'redux';
+import { createStore, applyMiddleware, combineReducers, compose } from 'redux';
 import commonReducer, { CommonState, initialState } from './reducer';
-import { composeWithDevTools } from "redux-devtools-extension";
+import createSagaMiddleware from 'redux-saga'
+import saga from './saga';
+
+const isServer = typeof window === 'undefined';
+
+const sagaMiddleware = createSagaMiddleware();
+
+let composeEnhancers = compose;
+if (!isServer) {
+    const win: any = window;
+    composeEnhancers = win.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+        ? win.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
+        : compose;
+}
+
+const enhancer = composeEnhancers(applyMiddleware(sagaMiddleware));
 
 export const initializeStore = (state: CommonState = initialState) => {
-    return createStore(
+    const store = createStore(
         commonReducer,
         state,
-        composeWithDevTools(applyMiddleware())
-    )
+        enhancer
+    );
+    sagaMiddleware.run(saga);
+    return store;
 }

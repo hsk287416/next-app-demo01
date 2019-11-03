@@ -8,7 +8,7 @@ const { clientId, clientSecret, tokenUrl, apiUrl } = oauthConfig.github;
 export default (server: Server) => {
     server.use(async (ctx: Context, next) => {
         if (ctx.path === '/auth') {
-            const code = ctx.query.code;
+            const { code } = ctx.query;
             if (!code) {
                 ctx.response.body = 'code not exist';
                 return;
@@ -40,6 +40,17 @@ export default (server: Server) => {
             } else {
                 ctx.response.body = `request token failed`;
             }
+        } else {
+            await next();
+        }
+    })
+
+    server.use(async (ctx: Context, next) => {
+        const path = ctx.path;
+        if (path === '/logout') {
+            ctx.session = null;
+            ctx.response.status = 200;
+            ctx.set('Content-Type', 'application/json');
         } else {
             await next();
         }

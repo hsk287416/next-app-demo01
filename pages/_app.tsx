@@ -3,9 +3,14 @@ import 'antd/dist/antd.css';
 import { Provider } from 'react-redux';
 import LayoutComp from '../components/Layout';
 import withRedux from '../libs/with-redux.lib';
-
+import PageLoading from '../components/PageLoading';
+import Router from 'next/router';
 
 class MyApp extends App<AppProps> {
+
+   state = {
+       loading: false
+   }
 
     static async getInitialProps(appContext: AppContext): Promise<AppInitialProps> {
         const { Component, ctx } = appContext;
@@ -18,18 +23,39 @@ class MyApp extends App<AppProps> {
         }
     }
 
+    startLoading = () => {
+        this.setState({
+            loading: true
+        });
+    }
+
+    endLoading = () => {
+        this.setState({
+            loading: false
+        });
+    }
+
+    componentDidMount =() => {
+        Router.events.on('routeChangeStart', this.startLoading);
+        Router.events.on('routeChangeComplete', this.endLoading);
+        Router.events.on('routeChangeError', this.endLoading);
+    }
+
+    componentWillUnmount = () => {
+        Router.events.off('routeChangeStart', this.startLoading);
+        Router.events.off('routeChangeComplete', this.endLoading);
+        Router.events.off('routeChangeError', this.endLoading);
+    }
+
     render() {
         const { Component, pageProps, store } = this.props;
-        const { userInfo } = store.getState();
-        let avatar_url = '';
-        let html_url = '';
-        if (userInfo) {
-            avatar_url = userInfo.avatar_url;
-            html_url = userInfo.html_url;
-        }
+
         return (
             <Provider store={store}>
-                <LayoutComp avatar_url={avatar_url} html_url={html_url}>
+                {
+                    this.state.loading ? <PageLoading /> : null
+                }
+                <LayoutComp>
                     <Component {...pageProps} />
                 </LayoutComp>
             </Provider>

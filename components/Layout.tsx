@@ -1,7 +1,11 @@
-import React, { useState, useCallback, memo } from 'react';
-import { Layout, Breadcrumb, Input, Avatar } from 'antd';
+import React, { useState, useCallback } from 'react';
+import { Layout, Breadcrumb, Input } from 'antd';
 import { Header, HeaderLeft, GitLogo, Footer, Content } from '../styles/Layout.style';
 import AvatarComp, { AvatarCompProp } from './Avatar';
+import { CommonState } from '../redux/reducer';
+import { Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import * as commonActions from '../redux/action';
 
 export interface LayoutCompProp extends AvatarCompProp {
   title?: string;
@@ -9,7 +13,7 @@ export interface LayoutCompProp extends AvatarCompProp {
 }
 
 const LayoutComp: React.FC<LayoutCompProp> = (props: LayoutCompProp) => {
-  const { children, avatar_url, html_url } = props;
+  const { children, avatar_url, html_url, logout } = props;
 
   const [search, setSearch] = useState('');
   const handleSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,7 +35,7 @@ const LayoutComp: React.FC<LayoutCompProp> = (props: LayoutCompProp) => {
           </div>
         </HeaderLeft>
         <div className="user">
-          <AvatarComp avatar_url={avatar_url} html_url={html_url}/>
+          <AvatarComp avatar_url={avatar_url} html_url={html_url} logout={logout} />
         </div>
       </Header>
       <Content style={{ padding: '0 50px' }}>
@@ -49,4 +53,24 @@ const LayoutComp: React.FC<LayoutCompProp> = (props: LayoutCompProp) => {
   )
 }
 
-export default memo(LayoutComp);
+const stateToProps = (state: CommonState) => {
+  const { userInfo } = state;
+  let avatar_url = '';
+  let html_url = '';
+  if (userInfo) {
+    avatar_url = userInfo.avatar_url;
+    html_url = userInfo.html_url;
+  }
+  return {
+    avatar_url,
+    html_url
+  }
+}
+
+const dispatchToProps = (dispatch: Dispatch) => {
+  return {
+    'logout': () => dispatch(commonActions.logoutAction())
+  }
+}
+
+export default connect(stateToProps, dispatchToProps)(LayoutComp);
