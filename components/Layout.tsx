@@ -1,11 +1,13 @@
 import React, { useState, useCallback } from 'react';
-import { Layout, Breadcrumb, Input } from 'antd';
+import { Layout, Input } from 'antd';
 import { Header, HeaderLeft, GitLogo, Footer, Content } from '../styles/Layout.style';
 import AvatarComp, { AvatarCompProp } from './Avatar';
 import { CommonState } from '../redux/reducer';
 import { Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import * as commonActions from '../redux/action';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 export interface LayoutCompProp extends AvatarCompProp {
   title?: string;
@@ -15,21 +17,25 @@ export interface LayoutCompProp extends AvatarCompProp {
 const LayoutComp: React.FC<LayoutCompProp> = (props: LayoutCompProp) => {
   const { children, avatar_url, html_url, logout } = props;
 
-  const [search, setSearch] = useState('');
+  const router = useRouter();
+  const key = router.query.key || '';
+  const [search, setSearch] = useState(key);
   const handleSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(event.target.value);
   }, []);
   const handleOnSearch = useCallback(() => {
-
-  }, []);
+    router.push(`/search?key=${search}`);
+  }, [search]);
 
   return (
     <Layout className="layout">
       <Header>
         <HeaderLeft>
-          <div className="log">
-            <GitLogo type="github" />
-          </div>
+          <Link href="/">
+            <div className="log">
+              <GitLogo type="github" />
+            </div>
+          </Link>
           <div>
             <Input.Search placeholder="搜索仓库" value={search} onChange={handleSearchChange} onSearch={handleOnSearch} />
           </div>
@@ -38,12 +44,7 @@ const LayoutComp: React.FC<LayoutCompProp> = (props: LayoutCompProp) => {
           <AvatarComp avatar_url={avatar_url} html_url={html_url} logout={logout} />
         </div>
       </Header>
-      <Content style={{ padding: '0 50px' }}>
-        <Breadcrumb style={{ margin: '16px 0' }}>
-          <Breadcrumb.Item>Home</Breadcrumb.Item>
-          <Breadcrumb.Item>List</Breadcrumb.Item>
-          <Breadcrumb.Item>App</Breadcrumb.Item>
-        </Breadcrumb>
+      <Content style={{ padding: '20px 50px' }}>
         <div style={{ background: '#fff', padding: 24, minHeight: 280 }}>
           {children}
         </div>

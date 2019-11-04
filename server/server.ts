@@ -6,6 +6,7 @@ import auth from './auth';
 import RedisSessionStore from './session-store';
 import IORedis from 'ioredis';
 import githubApi from './api';
+import koaBody from 'koa-body';
 
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
@@ -22,6 +23,7 @@ app.prepare().then(() => {
         maxAge: 60 * 1000 * 30
     }
     server.use(session(SESSION_CONFIG, server));
+    server.use(koaBody());
     auth(server);
     githubApi(server);
     
